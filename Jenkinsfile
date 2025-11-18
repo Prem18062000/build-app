@@ -21,7 +21,7 @@ pipeline {
                 }
 
                 git branch: "${env.ACTUAL_BRANCH}",
-                    url: "https://github.com/<your-github-username>/<your-repo-name>.git",
+                    url: "https://github.com/Prem18062000/build-app.git",
                     credentialsId: "github-creds"
 
                 echo "Branch Detected: ${env.ACTUAL_BRANCH}"
