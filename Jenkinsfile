@@ -40,11 +40,11 @@ pipeline {
         
                     if (env.ACTUAL_BRANCH == "dev") {
                         echo "Building DEV Docker image..."
-                        sh "docker build -t $DEV_IMAGE ${buildContext}"
+                        sh "sudo docker build -t $DEV_IMAGE ${buildContext}"
                     }
                     else if (env.ACTUAL_BRANCH == "prod") {
                         echo "Building PROD Docker image..."
-                        sh "docker build -t $PROD_IMAGE ${buildContext}"
+                        sh "sudo docker build -t $PROD_IMAGE ${buildContext}"
                     }
                     else {
                         error "Unsupported branch: ${env.ACTUAL_BRANCH}. Only 'dev' and 'prod' are allowed."
@@ -69,16 +69,16 @@ pipeline {
                 ]) {
                     script {
                         sh """
-                            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                            echo "$DOCKER_PASS" | sudo docker login -u "$DOCKER_USER" --password-stdin
                         """
 
                         if (env.ACTUAL_BRANCH == "dev") {
                             echo "Pushing DEV Docker image..."
-                            sh "docker push $DEV_IMAGE"
+                            sh "sudo docker push $DEV_IMAGE"
                         }
                         else if (env.ACTUAL_BRANCH == "prod") {
                             echo "Pushing PROD Docker image..."
-                            sh "docker push $PROD_IMAGE"
+                            sh "sudo docker push $PROD_IMAGE"
                         }
                     }
                 }
