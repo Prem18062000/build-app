@@ -90,16 +90,36 @@ pipeline {
         stage('Deploy to Environment') {
             steps {
                 script {
+                    // DEV DEPLOYMENT
                     if (env.ACTUAL_BRANCH == "dev") {
                         echo "Deploying to DEV environment..."
+
                         node('project_1_dev') {
+
+                            // Copy docker-compose.yml and deploy.sh to node
+                            sh """
+                                cp \$WORKSPACE/docker-compose.yml ~/docker-compose.yml
+                                cp \$WORKSPACE/deploy.sh ~/deploy.sh
+                                chmod +x ~/deploy.sh
+                            """
+
+                            // Run deploy script
                             sh "bash ~/deploy.sh $DEV_IMAGE"
                         }
                     }
 
+                   // PROD DEPLOYMENT
                     if (env.ACTUAL_BRANCH == "prod") {
                         echo "Deploying to PROD environment..."
+
                         node('project_1_prod') {
+
+                            sh """
+                                cp \$WORKSPACE/docker-compose.yml ~/docker-compose.yml
+                                cp \$WORKSPACE/deploy.sh ~/deploy.sh
+                                chmod +x ~/deploy.sh
+                            """
+
                             sh "bash ~/deploy.sh $PROD_IMAGE"
                         }
                     }
