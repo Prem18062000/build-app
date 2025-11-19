@@ -45,15 +45,15 @@ pipeline {
                 unstash 'appsource'
 
                 script {
-                    def buildContext = "build/"
-
                     if (env.ACTUAL_BRANCH == "dev") {
                         echo "Building DEV Docker image..."
-                        sh "sudo docker build -t $DEV_IMAGE -f build/Dockerfile ${buildContext}"
+                        sh "chmod +x build.sh"
+                        sh "./build.sh $DEV_IMAGE"
                     }
                     else if (env.ACTUAL_BRANCH == "prod") {
                         echo "Building PROD Docker image..."
-                        sh "sudo docker build -t $PROD_IMAGE -f build/Dockerfile ${buildContext}"
+                        sh "chmod +x build.sh"
+                        sh "./build.sh $PROD_IMAGE"
                     }
                     else {
                         error "Unsupported branch: ${env.ACTUAL_BRANCH}"
@@ -61,6 +61,7 @@ pipeline {
                 }
             }
         }
+
 
 
         /***********************
