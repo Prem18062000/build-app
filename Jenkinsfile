@@ -90,33 +90,42 @@ pipeline {
         stage('Deploy to Environment') {
             steps {
                 script {
+
+                    def composeFile   = "${env.WORKSPACE}/docker-compose.yml"
+                    def deployScript  = "${env.WORKSPACE}/deploy.sh"
+
                     // DEV DEPLOYMENT
                     if (env.ACTUAL_BRANCH == "dev") {
                         echo "Deploying to DEV environment..."
 
                         node('project_1_dev') {
 
-                            // Copy docker-compose.yml and deploy.sh to node
+                            // Copy contents of files into node
+                            writeFile file: 'docker-compose.yml', text: readFile(composeFile)
+                            writeFile file: 'deploy.sh', text: readFile(deployScript)
+
                             sh """
-                                cp \$WORKSPACE/docker-compose.yml ~/docker-compose.yml
-                                cp \$WORKSPACE/deploy.sh ~/deploy.sh
+                                mv docker-compose.yml ~/docker-compose.yml
+                                mv deploy.sh ~/deploy.sh
                                 chmod +x ~/deploy.sh
                             """
 
-                            // Run deploy script
                             sh "bash ~/deploy.sh $DEV_IMAGE"
                         }
                     }
 
-                   // PROD DEPLOYMENT
+                    // PROD DEPLOYMENT
                     if (env.ACTUAL_BRANCH == "prod") {
                         echo "Deploying to PROD environment..."
 
                         node('project_1_prod') {
 
+                            writeFile file: 'docker-compose.yml', text: readFile(composeFile)
+                            writeFile file: 'deploy.sh', text: readFile(deployScript)
+
                             sh """
-                                cp \$WORKSPACE/docker-compose.yml ~/docker-compose.yml
-                                cp \$WORKSPACE/deploy.sh ~/deploy.sh
+                                mv docker-compose.yml ~/docker-compose.yml
+                                mv deploy.sh ~/deploy.sh
                                 chmod +x ~/deploy.sh
                             """
 
@@ -126,5 +135,5 @@ pipeline {
                 }
             }
         }
-    }
-}
+    } // stages
+} // pipeline
