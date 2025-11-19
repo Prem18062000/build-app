@@ -32,9 +32,9 @@ fi
 
 # Ensure docker-compose exists (Works with both V1 & V2)
 if command -v docker compose >/dev/null 2>&1; then
-    COMPOSE_CMD="docker compose"
+    COMPOSE_CMD="sudo docker compose"
 elif command -v docker-compose >/dev/null 2>&1; then
-    COMPOSE_CMD="docker-compose"
+    COMPOSE_CMD="sudo docker-compose"
 else
     log "ERROR: docker compose or docker-compose is not installed!"
     exit 1

@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   react-app:
-    image: "${IMAGE}"          # Passed from deploy.sh
+    image: "${IMAGE}"        # Passed dynamically from deploy.sh
     container_name: react-app
     restart: always
     ports:
