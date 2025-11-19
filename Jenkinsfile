@@ -16,7 +16,11 @@ pipeline {
             steps {
                 script {
                     // Detect branch correctly
-                    def branchName = env.GIT_BRANCH ?: sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
+                    def branchName = env.GIT_BRANCH ?: sh(
+                        script: "git rev-parse --abbrev-ref HEAD",
+                        returnStdout: true
+                    ).trim()
+
                     env.ACTUAL_BRANCH = branchName.replace("origin/", "")
                 }
 
@@ -25,18 +29,24 @@ pipeline {
                     credentialsId: "github-creds"
 
                 echo "Branch Detected: ${env.ACTUAL_BRANCH}"
+
+                // Make repo available for other nodes
+                stash name: 'appsource', includes: '**/*'
             }
         }
 
-        /***********************
-        * BUILD DOCKER IMAGE
-        ***********************/
 
+        /***********************
+         * BUILD DOCKER IMAGE
+         ***********************/
         stage('Build Docker Image') {
             agent { label 'build_agent' }
             steps {
+                unstash 'appsource'
+
                 script {
-                    def buildContext = "build/"   // KEEPING YOUR ORIGINAL PROCESS
+                    def buildContext = "build/"
+
                     if (env.ACTUAL_BRANCH == "dev") {
                         echo "Building DEV Docker image..."
                         sh "sudo docker build -t $DEV_IMAGE -f build/Dockerfile ${buildContext}"
@@ -46,7 +56,7 @@ pipeline {
                         sh "sudo docker build -t $PROD_IMAGE -f build/Dockerfile ${buildContext}"
                     }
                     else {
-                        error "Unsupported branch: ${env.ACTUAL_BRANCH}. Only 'dev' and 'prod' are allowed."
+                        error "Unsupported branch: ${env.ACTUAL_BRANCH}"
                     }
                 }
             }
@@ -59,6 +69,8 @@ pipeline {
         stage('Push Docker Image') {
             agent { label 'build_agent' }
             steps {
+                unstash 'appsource'
+
                 withCredentials([
                     usernamePassword(
                         credentialsId: 'dockerhub-creds',
@@ -84,29 +96,28 @@ pipeline {
             }
         }
 
+
         /***********************
          * DEPLOY TO SERVERS
          ***********************/
         stage('Deploy to Environment') {
+
             steps {
                 script {
 
-                    def composeFile   = "${env.WORKSPACE}/docker-compose.yml"
-                    def deployScript  = "${env.WORKSPACE}/deploy.sh"
-
-                    // DEV DEPLOYMENT
+                    /***********************
+                     * DEV DEPLOYMENT
+                     ***********************/
                     if (env.ACTUAL_BRANCH == "dev") {
                         echo "Deploying to DEV environment..."
 
                         node('project_1_dev') {
 
-                            // Copy contents of files into node
-                            writeFile file: 'docker-compose.yml', text: readFile(composeFile)
-                            writeFile file: 'deploy.sh', text: readFile(deployScript)
+                            unstash 'appsource'  // <---- RESTORES FILES HERE
 
                             sh """
-                                mv docker-compose.yml ~/docker-compose.yml
-                                mv deploy.sh ~/deploy.sh
+                                cp docker-compose.yml ~/docker-compose.yml
+                                cp deploy.sh ~/deploy.sh
                                 chmod +x ~/deploy.sh
                             """
 
@@ -114,26 +125,31 @@ pipeline {
                         }
                     }
 
-                    // PROD DEPLOYMENT
+
+                    /***********************
+                     * PROD DEPLOYMENT
+                     ***********************/
                     if (env.ACTUAL_BRANCH == "prod") {
                         echo "Deploying to PROD environment..."
 
                         node('project_1_prod') {
 
-                            writeFile file: 'docker-compose.yml', text: readFile(composeFile)
-                            writeFile file: 'deploy.sh', text: readFile(deployScript)
+                            unstash 'appsource'
 
                             sh """
-                                mv docker-compose.yml ~/docker-compose.yml
-                                mv deploy.sh ~/deploy.sh
+                                cp docker-compose.yml ~/docker-compose.yml
+                                cp deploy.sh ~/deploy.sh
                                 chmod +x ~/deploy.sh
                             """
 
                             sh "bash ~/deploy.sh $PROD_IMAGE"
                         }
                     }
-                }
-            }
-        }
+
+                } // script
+            } // steps
+        } // stage
+
     } // stages
+
 } // pipeline
