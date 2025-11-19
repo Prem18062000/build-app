@@ -7,7 +7,7 @@
 set -e  # Exit on error
 IMAGE="$1"
 APP_DIR="$HOME/app"
-COMPOSE_FILE="$APP_DIR/docker-compose.yml"
+COMPOSE_FILE="$APP_DIR/docker-compose.yaml"
 TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
 
 log() {
@@ -43,8 +43,8 @@ fi
 # Ensure app directory exists
 mkdir -p "$APP_DIR"
 
-log "Copying docker-compose.yml to $APP_DIR ..."
-cp "$HOME/docker-compose.yml" "$COMPOSE_FILE"
+log "Copying docker-compose.yaml to $APP_DIR ..."
+cp "$HOME/docker-compose.yaml" "$COMPOSE_FILE"
 
 log "Pulling latest image: $IMAGE ..."
 docker pull "$IMAGE"
