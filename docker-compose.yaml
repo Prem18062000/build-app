@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  react-app:
+    image: "${IMAGE}"
+    container_name: react-app
+    restart: always
+
+    ports:
+      - "80:80"
+
+    # nginx already runs inside your image → no extra service required
+    # This container *is* your nginx server.
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Required because nginx inside needs to stay PID 1
+    init: true
