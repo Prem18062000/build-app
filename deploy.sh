@@ -49,11 +49,16 @@ cp "$HOME/docker-compose.yaml" "$COMPOSE_FILE"
 log "Pulling latest image: $IMAGE ..."
 sudo docker pull "$IMAGE"
 
+# Create .env file so docker-compose gets the IMAGE value
+echo "IMAGE=$IMAGE" > "$APP_DIR/.env"
+log "Generated .env file with IMAGE=$IMAGE"
+
 log "Stopping existing containers..."
-$COMPOSE_CMD -f "$COMPOSE_FILE" down || true
+sudo $COMPOSE_CMD -f "$COMPOSE_FILE" down || true
 
 log "Starting new containers..."
-IMAGE="$IMAGE" $COMPOSE_CMD -f "$COMPOSE_FILE" up -d
+sudo $COMPOSE_CMD -f "$COMPOSE_FILE" up -d
+
 
 log "Waiting for container warmup..."
 sleep 3
