@@ -33,7 +33,7 @@ pipeline {
         ***********************/
 
         stage('Build Docker Image') {
-            agent any
+            agent { label 'build_agent' }
             steps {
                 script {
                     def buildContext = "build/"   // KEEPING YOUR ORIGINAL PROCESS
@@ -57,7 +57,7 @@ pipeline {
          * PUSH DOCKER IMAGE
          ***********************/
         stage('Push Docker Image') {
-            agent any
+            agent { label 'build_agent' }
             steps {
                 withCredentials([
                     usernamePassword(
