@@ -116,7 +116,7 @@ pipeline {
                             unstash 'appsource'  // <---- RESTORES FILES HERE
 
                             sh """
-                                cp docker-compose.yml ~/docker-compose.yml
+                                cp docker-compose.yaml ~/docker-compose.yaml
                                 cp deploy.sh ~/deploy.sh
                                 chmod +x ~/deploy.sh
                             """
@@ -137,7 +137,7 @@ pipeline {
                             unstash 'appsource'
 
                             sh """
-                                cp docker-compose.yml ~/docker-compose.yml
+                                cp docker-compose.yaml ~/docker-compose.yaml
                                 cp deploy.sh ~/deploy.sh
                                 chmod +x ~/deploy.sh
                             """
