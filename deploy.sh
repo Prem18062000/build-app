@@ -47,7 +47,7 @@ log "Copying docker-compose.yaml to $APP_DIR ..."
 cp "$HOME/docker-compose.yaml" "$COMPOSE_FILE"
 
 log "Pulling latest image: $IMAGE ..."
-docker pull "$IMAGE"
+sudo docker pull "$IMAGE"
 
 log "Stopping existing containers..."
 $COMPOSE_CMD -f "$COMPOSE_FILE" down || true
@@ -58,8 +58,14 @@ IMAGE="$IMAGE" $COMPOSE_CMD -f "$COMPOSE_FILE" up -d
 log "Waiting for container warmup..."
 sleep 3
 
+log "Checking image list"
+sudo docker images
+
+log "Checking deployed containers..."
+$COMPOSE_CMD -f "$COMPOSE_FILE" ps
+
 log "Checking running containers..."
-docker ps
+sudo docker ps
 
 log "Deployment completed successfully!"
 log "-------------------------------------------------"
