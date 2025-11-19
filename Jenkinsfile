@@ -93,14 +93,14 @@ pipeline {
                 script {
                     if (env.ACTUAL_BRANCH == "dev") {
                         echo "Deploying to DEV environment..."
-                        node('dev') {
+                        node('project_1_dev') {
                             sh "bash ~/deploy.sh $DEV_IMAGE"
                         }
                     }
 
                     if (env.ACTUAL_BRANCH == "prod") {
                         echo "Deploying to PROD environment..."
-                        node('prod') {
+                        node('project_1_prod') {
                             sh "bash ~/deploy.sh $PROD_IMAGE"
                         }
                     }
