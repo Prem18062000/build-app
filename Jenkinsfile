@@ -29,22 +29,21 @@ pipeline {
         }
 
         /***********************
-         * BUILD DOCKER IMAGE
-         ***********************/
+        * BUILD DOCKER IMAGE
+        ***********************/
+
         stage('Build Docker Image') {
             agent any
             steps {
                 script {
-        
-                    def buildContext = "build/"   // IMPORTANT
-        
+                    def buildContext = "build/"   // KEEPING YOUR ORIGINAL PROCESS
                     if (env.ACTUAL_BRANCH == "dev") {
                         echo "Building DEV Docker image..."
-                        sh "sudo docker build -t $DEV_IMAGE ${buildContext}"
+                        sh "sudo docker build -t $DEV_IMAGE -f build/Dockerfile ${buildContext}"
                     }
                     else if (env.ACTUAL_BRANCH == "prod") {
                         echo "Building PROD Docker image..."
-                        sh "sudo docker build -t $PROD_IMAGE ${buildContext}"
+                        sh "sudo docker build -t $PROD_IMAGE -f build/Dockerfile ${buildContext}"
                     }
                     else {
                         error "Unsupported branch: ${env.ACTUAL_BRANCH}. Only 'dev' and 'prod' are allowed."
